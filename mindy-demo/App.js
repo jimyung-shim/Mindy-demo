@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import PersonaSelectScreen from './screens/PersonaSelectScreen';
+import ChatScreen from './screens/ChatScreen';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -15,6 +16,11 @@ export default function App() {
           name="Persona"
           component={PersonaSelectScreen}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Chat"
+          component={ChatScreen}
+          options={{ title: '마음 챗봇' }} // 원하면 headerShown: false로 감출 수도 있음
         />
       </Stack.Navigator>
     </NavigationContainer>
