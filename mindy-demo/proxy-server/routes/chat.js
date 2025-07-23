@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { OpenAI } = require('openai');
 const anonymize = require('../middlewares/anonymize');
+const ChatLog = require('../models/ChatLog');
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -13,7 +14,7 @@ const openai = new OpenAI({
  * Body: { messages: [{ role: 'user'|'system'|'assistant', content: string }, ...] }
  */
 router.post('/', anonymize, async (req, res) => {
-  let { messages } = req.body;
+  let { messages, sessionId } = req.body;
 
   if (!Array.isArray(messages)) {
     return res.status(400).json({ error: 'messages must be an array' });
@@ -102,10 +103,7 @@ router.post('/', anonymize, async (req, res) => {
 사용자의 표현(예: "매일 힘들어요", "가끔", "별로 그런 느낌은 없어요")에 따라 내부적으로 0~3점 중 적절한 점수를 추정하세요. 직접 점수를 고르게 하거나 선택지를 나열하지 마세요.`
 
 
-messages = [
-  { role: "system", content: systemPrompt.trim() },
-    ...messages
-];
+messages = [{ role: "system", content: systemPrompt.trim() }, ...messages];
 
   try {
     const completion = await openai.chat.completions.create({
@@ -116,6 +114,12 @@ messages = [
 
     // OpenAI 응답에서 첫 번째 메시지만 클라이언트에 전달
     const botMessage = completion.choices[0].message;
+
+    await ChatLog.create({
+      sessionId: sessionId || 'ananymous',
+      messages: [...messages, botMessage]
+    });
+
     res.json(botMessage);
   } catch (err) {
     console.error('❌ OpenAI API Error:', err);
