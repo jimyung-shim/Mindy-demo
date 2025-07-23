@@ -4,6 +4,7 @@ import { View, FlatList, StyleSheet, SafeAreaView, KeyboardAvoidingView,Platform
 import ChatMessage from '../components/ChatMessage';
 import QuickReplyButton from '../components/QuickReplyButton';
 import InputBar from '../components/InputBar';
+import { PROXY_SERVER } from '@env';
 
 const initialMessages = [
   { id: '1', sender: 'bot', text: '안녕하세요. 오늘 하루는 어땠나요?' },
@@ -23,13 +24,54 @@ export default function ChatScreen() {
   const [input, setInput] = useState('');
   const [selectedQuick, setSelectedQuick] = useState(null);
 
-  const onSend = () => {
+  const onSend = async () => {
     if (!input.trim()) return;
-    const newMsg = { id: Date.now().toString(), sender: 'user', text: input };
-    setMessages((prev) => [...prev, newMsg]);
+
+    const userMessage = {
+      id: Date.now().toString(),
+      sender: 'user',
+      text: input,
+    };
+
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages); // 사용자 메시지 먼저 표시
     setInput('');
-    // TODO: 프록시 서버에 요청 후 bot 응답 추가
+
+    try {
+      const response = await fetch(`${PROXY_SERVER}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: newMessages.map((msg) => ({
+            role: msg.sender === 'user' ? 'user' : 'assistant',
+            content: msg.text,
+          })),
+        }),
+      });
+
+      const botReply = await response.json();
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          sender: 'bot',
+          text: botReply.content,
+        },
+      ]);
+    } catch (error) {
+      console.error('프록시 서버 오류:', error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          sender: 'bot',
+          text: '⚠️ 죄송합니다. 서버 오류로 응답을 받을 수 없어요.',
+        },
+      ]);
+    }
   };
+
 
   const onQuickReply = (label) => {
     setSelectedQuick(label);
