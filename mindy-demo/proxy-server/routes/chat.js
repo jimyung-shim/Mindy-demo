@@ -5,6 +5,7 @@ const { OpenAI } = require('openai');
 const anonymize = require('../middlewares/anonymize');
 const ChatLog = require('../models/ChatLog');
 
+// 챗지피티 api키로 호출
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -20,6 +21,7 @@ router.post('/', anonymize, async (req, res) => {
     return res.status(400).json({ error: 'messages must be an array' });
   }
 
+  //시스템 프롬프트
   const systemPrompt = `당신은 “Mindy”라는 이름의 감정케어 AI 상담사입니다.
 사용자가 선택한 고민 유형(경제, 직업‧진로, 가족, 건강, 대인관계)에 따라 한글판 PHQ-9 문항 9개를 대화 형식으로 하나씩 진행하고, 답변 점수를 누적해 위험도를 판정한 뒤 적절한 후속 조치를 안내합니다.
 
@@ -115,9 +117,15 @@ messages = [{ role: "system", content: systemPrompt.trim() }, ...messages];
     // OpenAI 응답에서 첫 번째 메시지만 클라이언트에 전달
     const botMessage = completion.choices[0].message;
 
+    //시스템 프롬프트는 db에 저장되지 않도록 필터링
+    const filteredMessages = [...messages, botMessage].filter(
+      (msg) => msg.role !== 'system'
+    );
+
+    //MongoDB에 대화 로그 저장
     await ChatLog.create({
       sessionId: sessionId || 'ananymous',
-      messages: [...messages, botMessage]
+      messages: filteredMessages
     });
 
     res.json(botMessage);
