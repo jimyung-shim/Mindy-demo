@@ -15,12 +15,12 @@ export default function App() {
         <Stack.Screen
           name="Persona"
           component={PersonaSelectScreen}
-          options={{ headerShown: false }}
+          options={{ title: 'Mindy' }}
         />
         <Stack.Screen
           name="Chat"
           component={ChatScreen}
-          options={{ title: '마음 챗봇' }} // 원하면 headerShown: false로 감출 수도 있음
+          options={{ title: 'Mindy와의 대화' }} // 원하면 headerShown: false로 감출 수도 있음
         />
       </Stack.Navigator>
     </NavigationContainer>
