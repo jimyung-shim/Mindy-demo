@@ -4,6 +4,7 @@ import { View, FlatList, StyleSheet, SafeAreaView, KeyboardAvoidingView,Platform
 import ChatMessage from '../components/ChatMessage';
 import QuickReplyButton from '../components/QuickReplyButton';
 import InputBar from '../components/InputBar';
+import QuestionnaireConsentModal from '../components/QuestionnaireConsentModal';
 import { PROXY_SERVER } from '@env';
 
 const initialMessages = [
@@ -19,9 +20,13 @@ const initialMessages = [
   //},
 ];
 
-export default function ChatScreen() {
+export default function ChatScreen({navigation}) {
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState('');
+  const [riskScores, setRiskScores] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  // 빠른 응답 관련 state
   const [selectedQuick, setSelectedQuick] = useState(null);
 
   const onSend = async () => {
@@ -38,6 +43,7 @@ export default function ChatScreen() {
     setInput('');
 
     try {
+      //proxy 서버에 보낼 때 role.content 형태
       const response = await fetch(`${PROXY_SERVER}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -49,14 +55,31 @@ export default function ChatScreen() {
         }),
       });
 
-      const botReply = await response.json();
+      const { content, riskScore } = await response.json();
 
+      // riskScores 상태에 추가
+      setRiskScores((prev) => {
+        const updated = [...prev, riskScore];
+
+        // 즉시 트리거
+        const avgRecent =
+          updated.slice(-7).reduce((sum, s) => sum + s, 0) /
+          Math.min(updated.length, 7);
+
+        if (riskScore === 3 || avgRecent >= 2) {
+          setModalVisible(true);
+        }
+
+        return updated;
+      });
+
+      // 챗봇 메시지 표시
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now().toString(),
           sender: 'bot',
-          text: botReply.content,
+          text: content,
         },
       ]);
     } catch (error) {
@@ -72,7 +95,16 @@ export default function ChatScreen() {
     }
   };
 
+  // 모달 버튼 핸들러
+  const handleConfirm = () => {
+    setModalVisible(false);
+    navigation.navigate('PHQ9');                 // ③
+  };
+  const handleCancel = () => {
+    setModalVisible(false);
+  };
 
+  // 빠른 응답 관련 기능
   const onQuickReply = (label) => {
     setSelectedQuick(label);
     const newMsg = { id: Date.now().toString(), sender: 'user', text: label };
@@ -109,6 +141,12 @@ export default function ChatScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         keyboardShouldPersistTaps="handled"
+      />
+
+      <QuestionnaireConsentModal
+        visible={modalVisible}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
       />
 
       {/* 빠른 응답 버튼 */}

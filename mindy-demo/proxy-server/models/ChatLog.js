@@ -6,7 +6,13 @@ const chatLogSchema = new mongoose.Schema({
     {
       role: { type: String, enum: ['user', 'assistant', 'system'], required: true },
       content: { type: String, required: true },
-      timestamp: { type: Date, default: Date.now }
+      timestamp: { type: Date, default: Date.now },
+      riskScore: {
+        type: Number,    
+        required: false,  
+        min: 0,
+        max: 3
+      }
     }
   ],
   createdAt: { type: Date, default: Date.now }

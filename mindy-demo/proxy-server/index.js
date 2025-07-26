@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const chatRoutes = require('./routes/chat');
 const connectDB = require('./db');
+const PHQRoutes = require('./routes/phq');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -16,6 +17,9 @@ connectDB();
 
 // 모든 /chat 요청은 routes/chat.js 로 위임
 app.use('/chat', chatRoutes);
+
+// 대화 로그 지피티 요약 및 문진표 작성
+app.use('/phq', PHQRoutes);
 
 app.listen(PORT, () => {
   console.log(`🛡️  Proxy server listening on http://localhost:${PORT}`);
