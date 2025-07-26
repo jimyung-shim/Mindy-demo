@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import Header from '../components/Header';
 import QuestionItem from '../components/QuestionItem';
+import { PROXY_SERVER} from '@env';
 
 // 고정 질문 리스트
 const QUESTIONS = [
@@ -17,22 +18,39 @@ const QUESTIONS = [
 ];
 
 export default function QuestionnaireScreen({ navigation, route }) {
-  // route.params.scores 형태로 서버에서 받은 점수를 전달한다고 가정
-  // 없으면 0으로 초기화
+  // sessionId를 전달받거나 anonymous로 기본 설정
+  const sessionId = route.params?.sessionId || 'anonymous';
+
+  // scores: PHQ-9 점수 배열
   const [scores, setScores] = useState(
     route.params?.scores || QUESTIONS.map(() => 0)
   );
 
-  // 예시: 마운트 시에 서버에서 점수 로드하기
+  // summary: GPT 요약 텍스트
+  const [summary, setSummary] = useState('');
+
   useEffect(() => {
     async function fetchScores() {
-      // 예: 필요하다면 API 호출해서 setScores([...])
-      // const res = await fetch(...);
-      // const data = await res.json();
-      // setScores(data);
+      try {
+        const res = await fetch(`${PROXY_SERVER}/phq/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId }),
+        });
+        const data = await res.json();
+
+        if (data.answers && Array.isArray(data.answers)) {
+          setScores(data.answers);
+        }
+        if (data.summary) {
+          setSummary(data.summary);
+        }
+      } catch (err) {
+        console.error('문진표 자동 로드 오류:', err);
+      }
     }
     fetchScores();
-  }, []);
+  }, [sessionId]);
 
   return (
     <View style={styles.container}>
@@ -42,6 +60,7 @@ export default function QuestionnaireScreen({ navigation, route }) {
         <Text style={styles.topTitle}>
           AI가 사용자와의 대화를 바탕으로 작성한 문진표예요!
         </Text>
+        {summary ? <Text style={styles.summary}>{summary}</Text> : null}
         <Text style={styles.subTitle}>
           일정 기준 이상이면 병원 또는 상담 예약을 추천할 수도 있어요!
         </Text>
