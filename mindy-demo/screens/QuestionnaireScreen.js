@@ -105,6 +105,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 12,
   },
+  summary: {
+    textAlign: 'center',
+  },
   divider: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: '#ccc',
