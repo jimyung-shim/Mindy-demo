@@ -67,9 +67,13 @@ export default function QuestionnaireScreen({ navigation, route }) {
   }, [sessionId]);
 
   // 문진표 결과 확인 이후 3초 뒤 다이얼로그 띄우기
-  setTimeout(() => {
-    setShowReservationDialog(true);
-  }, 3000);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setShowReservationDialog(true);
+    }, 3000);
+
+    return () => clearTimeout(timeout); // 컴포넌트 언마운트 시 타이머 정리
+  }, []);
 
 
   return (
