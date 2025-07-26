@@ -102,33 +102,77 @@ router.post('/', anonymize, async (req, res) => {
 답변을 숫자로 고르도록 유도하지 말고, 사용자가 말한 감정이나 표현을 기반으로 점수를 추정하세요.
 답변에 공감한 후, 마치 이야기 흐름처럼 다음 질문으로 자연스럽게 넘어가세요.
 사용자의 말투에 맞춰 문장을 조금 더 캐주얼하게 바꾸어도 좋습니다.
-사용자의 표현(예: "매일 힘들어요", "가끔", "별로 그런 느낌은 없어요")에 따라 내부적으로 0~3점 중 적절한 점수를 추정하세요. 직접 점수를 고르게 하거나 선택지를 나열하지 마세요.`
+사용자의 표현(예: "매일 힘들어요", "가끔", "별로 그런 느낌은 없어요")에 따라 내부적으로 0~3점 중 적절한 점수를 추정하세요. 직접 점수를 고르게 하거나 선택지를 나열하지 마세요.
+
+— 추가 과제: riskScore 산출 —
+* 사용자가 이번 turn에 입력한 **마지막 메시지**만을 기준으로 위험도를 평가해 주세요.
+* 판단 기준 (0: 위험 없음, 1: 경미한 부정감, 2: 중간 수준 불안/우울, 3: 자살·자해·극단적 위험 언급).
+
+— 응답 형식 (JSON) —
+{
+  "reply": "<챗봇의 자연스러운 한국어 대답>",
+  "riskScore": <0|1|2|3>
+}
+
+* 반드시 위 JSON **객체만**를 출력하세요 (불필요한 문장, 코드블록 장식 금지).
+* reply 문장은 말풍선에 바로 보여줄 수 있는 형태로 짧고 따뜻하게 작성하세요.`
 
 
-messages = [{ role: "system", content: systemPrompt.trim() }, ...messages];
+  messages = [{ role: "system", content: systemPrompt.trim() }, ...messages];
 
   try {
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages,
+      response_format:{type: 'json_object'},  // json 형태로 응답
       max_tokens: 500,
     });
 
-    // OpenAI 응답에서 첫 번째 메시지만 클라이언트에 전달
-    const botMessage = completion.choices[0].message;
+    // JSON 파싱 ==> reply + riskScore 분리
+    let parsed;
+    try {
+      parsed = JSON.parse(completion.choices[0].message.content.trim());
+    } catch (e) {
+      console.error('JSON parse error:', e);
+      return res.status(500).json({ error: 'Invalid JSON from OpenAI' });
+    }
+    const { reply, riskScore } = parsed;
+
+    //riskScore 유효성 검사
+    const safeRisk = Number(riskScore);
+    if (typeof safeRisk !== 'number' || safeRisk < 0 || safeRisk > 3) {
+      console.warn(`Unexpected riskScore ${riskScore}, default to 0`);
+      safeRisk = 0;
+    }
+
+    // 사용자 마지막 메시지에 riskScore 추가
+    const messagesWithRisk = messages.map((msg, i) => {
+      const isLastUserMessage = i === messages.length - 1 && msg.role === 'user';
+      return isLastUserMessage ? { ...msg, riskScore: safeRisk } : msg;
+    });
+
+    // assistant 응답 메시지
+    const botMessage = {
+      role: 'assistant',
+      content: reply || '',
+    };
 
     //시스템 프롬프트는 db에 저장되지 않도록 필터링
-    const filteredMessages = [...messages, botMessage].filter(
+    const filteredMessages = [...messagesWithRisk, botMessage].filter(
       (msg) => msg.role !== 'system'
     );
 
     //MongoDB에 대화 로그 저장
     await ChatLog.create({
-      sessionId: sessionId || 'ananymous',
+      sessionId: sessionId || 'anonymous',
       messages: filteredMessages
     });
 
-    res.json(botMessage);
+    res.json({
+        content:botMessage.content,
+        riskScore: safeRisk
+    });
+
   } catch (err) {
     console.error('❌ OpenAI API Error:', err);
     res.status(500).json({ error: 'Failed to fetch from OpenAI' });
