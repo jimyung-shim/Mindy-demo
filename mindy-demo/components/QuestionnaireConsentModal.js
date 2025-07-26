@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   container: {
     width: '80%',
     backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 30,
     padding: 20,
   },
   title: {
@@ -60,14 +60,14 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     marginHorizontal: 5,
-    borderRadius: 5,
+    borderRadius: 20,
     alignItems: 'center',
   },
   cancelButton: {
     backgroundColor: '#ccc',
   },
   confirmButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#5c4ccf',
   },
   buttonText: {
     fontSize: 16,

@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
   },
   selectedCard: {
     borderWidth: 3,
-    borderColor: 'purple',
+    borderColor: '#5c4ccf',
     borderRadius: 50,
     padding: 5,
   },

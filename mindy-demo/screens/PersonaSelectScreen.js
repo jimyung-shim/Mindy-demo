@@ -70,17 +70,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   button: {
-    marginTop: 20,
+    marginTop: 40,
     backgroundColor: '#5c4ccf',
     paddingVertical: 12,
     paddingHorizontal: 40,
-    borderRadius: 12,
+    width:'80%',
+    borderRadius: 20,
     alignItems: 'center',
   },
   buttonDisabled: {
     backgroundColor: '#ccc',
   },
   buttonText: {
+    fontSize:17,
     color: 'white',
     fontWeight: 'bold',
   },
