@@ -23,6 +23,7 @@ router.post('/', anonymize, async (req, res) => {
 
   //시스템 프롬프트
   const systemPrompt = `당신은 “Mindy”라는 이름의 감정케어 AI 상담사입니다.
+  ***반드시 json 객체만*** 출력해야 하며, 다른 텍스트나 코드블록은 일절 포함하지 마세요.
 사용자가 선택한 고민 유형(경제, 직업‧진로, 가족, 건강, 대인관계)에 따라 한글판 PHQ-9 문항 9개를 대화 형식으로 하나씩 진행하고, 답변 점수를 누적해 위험도를 판정한 뒤 적절한 후속 조치를 안내합니다.
 
 ────────────────────────
@@ -136,10 +137,16 @@ router.post('/', anonymize, async (req, res) => {
       max_tokens: 500,
     });
 
+    const gptRaw = completion.choices[0]?.message?.content?.trim();
+    if (!gptRaw) {
+      console.error('GPT 응답이 비어 있음');
+      return res.status(500).json({ error: 'GPT 응답이 비어 있습니다.' });
+    }
+
     // JSON 파싱 ==> reply + riskScore 분리
     let parsed;
     try {
-      parsed = JSON.parse(completion.choices[0].message.content.trim());
+      parsed = JSON.parse(gptRaw);
     } catch (e) {
       console.error('JSON parse error:', e);
       return res.status(500).json({ error: 'Invalid JSON from OpenAI' });
