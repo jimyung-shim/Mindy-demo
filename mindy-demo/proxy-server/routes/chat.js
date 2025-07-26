@@ -120,10 +120,18 @@ router.post('/', anonymize, async (req, res) => {
 
   messages = [{ role: "system", content: systemPrompt.trim() }, ...messages];
 
+  const safeMessages = messages.filter(
+    (msg) => typeof msg.content === 'string' && msg.content.trim() !== ''
+  );
+
+
   try {
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
-      messages,
+      messages: [
+        { role:'system',content: systemPrompt },
+        ...safeMessages,
+      ],
       response_format:{type: 'json_object'},  // json 형태로 응답
       max_tokens: 500,
     });
@@ -139,8 +147,8 @@ router.post('/', anonymize, async (req, res) => {
     const { reply, riskScore } = parsed;
 
     //riskScore 유효성 검사
-    const safeRisk = Number(riskScore);
-    if (typeof safeRisk !== 'number' || safeRisk < 0 || safeRisk > 3) {
+    let safeRisk = Number(riskScore);
+    if (typeof safeRisk !== 'number' || safeRisk < 0 || safeRisk > 3 || isNaN(safeRisk)) {
       console.warn(`Unexpected riskScore ${riskScore}, default to 0`);
       safeRisk = 0;
     }
@@ -156,10 +164,13 @@ router.post('/', anonymize, async (req, res) => {
       role: 'assistant',
       content: reply || '',
     };
-
+    
     //시스템 프롬프트는 db에 저장되지 않도록 필터링
     const filteredMessages = [...messagesWithRisk, botMessage].filter(
-      (msg) => msg.role !== 'system'
+      (msg) => 
+        msg.role !== 'system' &&
+        typeof msg.content === 'string' &&
+        msg.content.trim() !== ''
     );
 
     //MongoDB에 대화 로그 저장
