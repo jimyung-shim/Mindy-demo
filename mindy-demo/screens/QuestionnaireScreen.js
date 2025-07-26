@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import Header from '../components/Header';
 import QuestionItem from '../components/QuestionItem';
+import ExpertReservationDialog from '../components/ExpertReservationDialog';
 import { PROXY_SERVER} from '@env';
 
 // 고정 질문 리스트
@@ -17,6 +18,16 @@ const QUESTIONS = [
   '차라리 죽는 것이 낫겠다는 생각 혹은 자해 충동'
 ];
 
+const reservationInfo = {
+  hospital: '00병원',
+  doctor: '김OO 의사',
+  date: '08/13',
+  time: '14:00',
+  personaName: 'Mindy',
+  personaImage: require('../assets/mindy-avatar.png'),
+};
+
+
 export default function QuestionnaireScreen({ navigation, route }) {
   // sessionId를 전달받거나 anonymous로 기본 설정
   const sessionId = route.params?.sessionId || 'anonymous';
@@ -28,6 +39,9 @@ export default function QuestionnaireScreen({ navigation, route }) {
 
   // summary: GPT 요약 텍스트
   const [summary, setSummary] = useState('');
+
+  // 전문가 예약 다이얼로그
+  const [showReservationDialog, setShowReservationDialog] = useState(false);
 
   useEffect(() => {
     async function fetchScores() {
@@ -51,6 +65,16 @@ export default function QuestionnaireScreen({ navigation, route }) {
     }
     fetchScores();
   }, [sessionId]);
+
+  // 문진표 결과 확인 이후 3초 뒤 다이얼로그 띄우기
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setShowReservationDialog(true);
+    }, 3000);
+
+    return () => clearTimeout(timeout); // 컴포넌트 언마운트 시 타이머 정리
+  }, []);
+
 
   return (
     <View style={styles.container}>
@@ -82,8 +106,22 @@ export default function QuestionnaireScreen({ navigation, route }) {
             score={scores[idx]}
           />
         ))}
+        
       </ScrollView>
+      <ExpertReservationDialog
+        visible={showReservationDialog}
+        reservation={reservationInfo}
+        onAccept={() => {
+          setShowReservationDialog(false);
+          // 수락 후 처리 (예: 예약화면 이동 or 토스트 메시지)
+        }}
+        onDecline={() => {
+          setShowReservationDialog(false);
+          // 거절 후 처리
+        }}
+      />
     </View>
+    
   );
 }
 
