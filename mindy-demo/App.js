@@ -26,6 +26,7 @@ export default function App() {
         <Stack.Screen
           name="PHQ9"
           component={QuestionnaireScreen}
+          options={{headerShown:false}}
         />
       </Stack.Navigator>
     </NavigationContainer>
