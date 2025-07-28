@@ -82,7 +82,7 @@ router.post('/', anonymize, async (req, res) => {
         { role:'system',content: systemPrompt },
         ...safeMessages,
       ],
-      response_format:'json',  // json 형태로 응답
+      response_format:{type: 'json_object'},  // json 형태로 응답
       max_tokens: 800,
     });
 
