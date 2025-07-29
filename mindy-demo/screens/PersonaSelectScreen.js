@@ -23,6 +23,7 @@ export default function PersonaSelectScreen({ navigation }) {
       const selectedPersona = personaList.find((p) => p.id === selectedId);
       navigation.navigate('Chat', { 
         personaId: selectedPersona.id,
+        personaLabel: selectedPersona.label,
         personaImage: selectedPersona.image,
       });
 

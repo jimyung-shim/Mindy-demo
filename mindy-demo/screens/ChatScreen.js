@@ -32,7 +32,7 @@ export default function ChatScreen({route, navigation}) {
   const [selectedQuick, setSelectedQuick] = useState(null);
 
   // 네비게이션 파라미터로 받은 이미지 (없으면 기본 아바타)
-  const {personaImage}=route.params || {};
+  const {personaImage, personaLabel}=route.params || {};
 
   const onSend = async () => {
     if (!input.trim()) return;
@@ -127,7 +127,10 @@ export default function ChatScreen({route, navigation}) {
   // 모달 버튼 핸들러
   const handleConfirm = () => {
     setModalVisible(false);
-    navigation.navigate('PHQ9');                 // ③
+    navigation.navigate('PHQ9',{
+      personaImage,
+      personaLabel,
+    });                 // ③
   };
   const handleCancel = () => {
     setModalVisible(false);

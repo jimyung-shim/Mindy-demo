@@ -18,13 +18,13 @@ const QUESTIONS = [
   '차라리 죽는 것이 낫겠다는 생각 혹은 자해 충동'
 ];
 
-const reservationInfo = {
+const BASE_RESERVATION = {
   hospital: '00병원',
   doctor: '김OO 의사',
   date: '08/13',
   time: '14:00',
-  personaName: 'Mindy',
-  personaImage: require('../assets/mindy-avatar.png'),
+  //personaName: 'Mindy',
+  //personaImage: require('../assets/mindy-avatar.png'),
 };
 
 
@@ -42,6 +42,9 @@ export default function QuestionnaireScreen({ navigation, route }) {
 
   // 전문가 예약 다이얼로그
   const [showReservationDialog, setShowReservationDialog] = useState(false);
+
+  const {personaImage,personaLabel}=route.params || {};
+
 
   useEffect(() => {
     async function fetchScores() {
@@ -110,7 +113,11 @@ export default function QuestionnaireScreen({ navigation, route }) {
       </ScrollView>
       <ExpertReservationDialog
         visible={showReservationDialog}
-        reservation={reservationInfo}
+        reservation={{
+          ...BASE_RESERVATION,
+          personaName: 'Mindy',
+          personaImage: personaImage || require('../assets/mindy-avatar.png'),
+        }}
         onAccept={() => {
           setShowReservationDialog(false);
           // 수락 후 처리 (예: 예약화면 이동 or 토스트 메시지)
