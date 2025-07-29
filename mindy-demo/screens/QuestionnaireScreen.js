@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import QuestionItem from '../components/QuestionItem';
 import ExpertReservationDialog from '../components/ExpertReservationDialog';
@@ -81,7 +83,20 @@ export default function QuestionnaireScreen({ navigation, route }) {
 
   return (
     <View style={styles.container}>
-      <Header title="문진표" onBack={() => navigation.goBack()} />
+      <Header 
+      title="문진표" 
+      onBack={() => navigation.goBack()}
+        right={
+          <TouchableOpacity onPress={() => navigation.navigate('ChatLogAdmin')}>
+            <Ionicons 
+              name="settings-outline" 
+              size={24} 
+              color="white" 
+              style={{ marginRight: 12 }} 
+              />
+          </TouchableOpacity>
+        }
+      />
 
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.topTitle}>
