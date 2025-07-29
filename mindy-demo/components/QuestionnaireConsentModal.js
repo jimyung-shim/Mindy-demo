@@ -12,8 +12,8 @@ const QuestionnaireConsentModal = ({ visible, onConfirm, onCancel }) => {
     >
       <View style={styles.overlay}>
         <View style={styles.container}>
-          <Text style={styles.title}>문진표 작성 안내</Text>
-          <Text style={styles.message}>문진표를 작성하시겠습니까?</Text>
+          <Text style={styles.title}>문진표 확인</Text>
+          <Text style={styles.message}>Mindy가 문진표를 작성하였습니다. 확인하시겠습니까?</Text>
           <View style={styles.buttonRow}>
             <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onCancel}>
               <Text style={styles.buttonText}>아니오</Text>
