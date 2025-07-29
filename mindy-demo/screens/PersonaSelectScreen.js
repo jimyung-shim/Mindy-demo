@@ -20,7 +20,13 @@ export default function PersonaSelectScreen({ navigation }) {
 
   const handleStart = () => {
     if (selectedId) {
-      navigation.navigate('Chat', { persona: selectedId });
+      const selectedPersona = personaList.find((p) => p.id === selectedId);
+      navigation.navigate('Chat', { 
+        personaId: selectedPersona.id,
+        personaLabel: selectedPersona.label,
+        personaImage: selectedPersona.image,
+      });
+
     }
   };
 

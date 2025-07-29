@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import QuestionItem from '../components/QuestionItem';
 import ExpertReservationDialog from '../components/ExpertReservationDialog';
@@ -18,13 +20,13 @@ const QUESTIONS = [
   '차라리 죽는 것이 낫겠다는 생각 혹은 자해 충동'
 ];
 
-const reservationInfo = {
+const BASE_RESERVATION = {
   hospital: '00병원',
   doctor: '김OO 의사',
   date: '08/13',
   time: '14:00',
-  personaName: 'Mindy',
-  personaImage: require('../assets/mindy-avatar.png'),
+  //personaName: 'Mindy',
+  //personaImage: require('../assets/mindy-avatar.png'),
 };
 
 
@@ -42,6 +44,9 @@ export default function QuestionnaireScreen({ navigation, route }) {
 
   // 전문가 예약 다이얼로그
   const [showReservationDialog, setShowReservationDialog] = useState(false);
+
+  const {personaImage,personaLabel}=route.params || {};
+
 
   useEffect(() => {
     async function fetchScores() {
@@ -78,7 +83,20 @@ export default function QuestionnaireScreen({ navigation, route }) {
 
   return (
     <View style={styles.container}>
-      <Header title="문진표" onBack={() => navigation.goBack()} />
+      <Header 
+      title="문진표" 
+      onBack={() => navigation.goBack()}
+        right={
+          <TouchableOpacity onPress={() => navigation.navigate('ChatLogAdmin')}>
+            <Ionicons 
+              name="settings-outline" 
+              size={24} 
+              color="white" 
+              style={{ marginRight: 12 }} 
+              />
+          </TouchableOpacity>
+        }
+      />
 
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.topTitle}>
@@ -110,7 +128,11 @@ export default function QuestionnaireScreen({ navigation, route }) {
       </ScrollView>
       <ExpertReservationDialog
         visible={showReservationDialog}
-        reservation={reservationInfo}
+        reservation={{
+          ...BASE_RESERVATION,
+          personaName: 'Mindy',
+          personaImage: personaImage || require('../assets/mindy-avatar.png'),
+        }}
         onAccept={() => {
           setShowReservationDialog(false);
           // 수락 후 처리 (예: 예약화면 이동 or 토스트 메시지)

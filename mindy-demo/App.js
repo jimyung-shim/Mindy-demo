@@ -6,6 +6,7 @@ import ChatScreen from './screens/ChatScreen';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import QuestionnaireScreen from './screens/QuestionnaireScreen';
+import ChatLogAdminScreen from './screens/ChatLogAdminScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,16 +19,24 @@ export default function App() {
           component={PersonaSelectScreen}
           options={{ title: 'Mindy' }}
         />
+
         <Stack.Screen
           name="Chat"
           component={ChatScreen}
           options={{ title: 'Mindy와의 대화' }} // 원하면 headerShown: false로 감출 수도 있음
         />
+
         <Stack.Screen
           name="PHQ9"
           component={QuestionnaireScreen}
           options={{headerShown:false}}
         />
+
+        <Stack.Screen 
+          name="ChatLogAdmin"
+          component={ChatLogAdminScreen}
+        />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

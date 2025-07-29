@@ -1,15 +1,16 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-export default function Header({ title, onBack }) {
+export default function Header({ title, onBack, right }) {
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={onBack} style={styles.backButton}>
         <Text style={styles.backArrow}>{'‹'}</Text>
       </TouchableOpacity>
       <Text style={styles.title}>{title}</Text>
+      {right ? <View style={styles.right}>{right}</View> : null}
       {/* 오른쪽 빈 공간 */}
-      <View style={styles.spacer} />
+      {/*<View style={styles.spacer} />*/}
     </View>
   );
 }
@@ -23,6 +24,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#ccc',
     backgroundColor: '#fff',
+    marginTop:15,
   },
   backButton: {
     width: 32,
