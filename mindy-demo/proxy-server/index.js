@@ -21,6 +21,10 @@ app.use('/chat', chatRoutes);
 // 대화 로그 지피티 요약 및 문진표 작성
 app.use('/phq', PHQRoutes);
 
+// 대화로그 관리
+app.use('/logs', require('./routes/logs'));
+
+
 app.listen(PORT, () => {
   console.log(`🛡️  Proxy server listening on http://localhost:${PORT}`);
 });
