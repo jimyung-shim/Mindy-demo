@@ -1,10 +1,12 @@
-FROM node:22-slim
+FROM node:18-slim
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm install
+ENV NODE_OPTIONS=--max-old-space-size=512
+
+RUN npm ci --omit=dev && npm cache clean --force
 
 COPY . .
 
