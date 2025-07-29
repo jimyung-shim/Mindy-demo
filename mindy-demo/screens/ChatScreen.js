@@ -20,7 +20,7 @@ const initialMessages = [
   //},
 ];
 
-export default function ChatScreen({navigation}) {
+export default function ChatScreen({route, navigation}) {
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState('');
   const [riskScores, setRiskScores] = useState([]);
@@ -28,9 +28,11 @@ export default function ChatScreen({navigation}) {
   const [showConsentPrompt, setShowConsentPrompt] = useState(false);
   const [awaitingConsentReply, setAwaitingConsentReply] = useState(false);
 
-
   // 빠른 응답 관련 state
   const [selectedQuick, setSelectedQuick] = useState(null);
+
+  // 네비게이션 파라미터로 받은 이미지 (없으면 기본 아바타)
+  const {personaImage}=route.params || {};
 
   const onSend = async () => {
     if (!input.trim()) return;
@@ -145,7 +147,7 @@ export default function ChatScreen({navigation}) {
       text={item.text}
       avatar={
         item.sender === 'bot'
-          ? require('../assets/mindy-avatar.png')
+          ? (personaImage || require('../assets/mindy-avatar.png'))
           : require('../assets/user-avatar.png')
       }
     />
