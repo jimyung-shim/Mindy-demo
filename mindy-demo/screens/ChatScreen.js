@@ -25,6 +25,9 @@ export default function ChatScreen({navigation}) {
   const [input, setInput] = useState('');
   const [riskScores, setRiskScores] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [showConsentPrompt, setShowConsentPrompt] = useState(false);
+  const [awaitingConsentReply, setAwaitingConsentReply] = useState(false);
+
 
   // 빠른 응답 관련 state
   const [selectedQuick, setSelectedQuick] = useState(null);
@@ -37,6 +40,20 @@ export default function ChatScreen({navigation}) {
       sender: 'user',
       text: input,
     };
+
+    if (awaitingConsentReply) {
+      const replyText = input.trim() || label;
+
+      if (replyText === '예') {
+        setModalVisible(true); // 문진표 다이얼로그 열기
+      }
+
+      // 상태 초기화
+      setShowConsentPrompt(false);
+      setAwaitingConsentReply(false);
+      return; // 더 이상 GPT 호출 안 함
+    }
+
 
     const newMessages = [...messages, userMessage];
     setMessages(newMessages); // 사용자 메시지 먼저 표시
@@ -67,21 +84,31 @@ export default function ChatScreen({navigation}) {
           Math.min(updated.length, 7);
 
         if (riskScore === 3 || avgRecent >= 2) {
-          setModalVisible(true);
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: Date.now().toString(),
+              sender: 'bot',
+              text: `지금 상태를 보니 문진표 작성을 권해드리고 싶어요. 괜찮으신가요?
+            (수락: 예, 거절: 아니오)`,
+              quickReplies: ['예', '아니오'],
+            },
+          ]);          
+          setAwaitingConsentReply(true);   // 다음 응답은 yes/no로 받기  
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: Date.now().toString(),
+              sender: 'bot',
+              text: content,
+            },
+          ]);
         }
 
         return updated;
       });
 
-      // 챗봇 메시지 표시
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          sender: 'bot',
-          text: content,
-        },
-      ]);
     } catch (error) {
       console.error('프록시 서버 오류:', error);
       setMessages((prev) => [
