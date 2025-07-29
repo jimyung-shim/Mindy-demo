@@ -2,7 +2,7 @@ FROM node:18-slim
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
 ENV NODE_OPTIONS=--max-old-space-size=512
 
