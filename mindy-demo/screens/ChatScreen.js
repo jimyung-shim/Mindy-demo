@@ -1,5 +1,5 @@
 // screens/ChatScreen.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, FlatList, StyleSheet, SafeAreaView, KeyboardAvoidingView,Platform, TouchableWithoutFeedback,Keyboard } from 'react-native';
 import ChatMessage from '../components/ChatMessage';
 import QuickReplyButton from '../components/QuickReplyButton';
@@ -34,6 +34,9 @@ export default function ChatScreen({route, navigation}) {
   // 네비게이션 파라미터로 받은 이미지 (없으면 기본 아바타)
   const {personaImage, personaLabel}=route.params || {};
 
+  const sessionId = useRef(Date.now().toString()).current;
+
+
   const onSend = async () => {
     if (!input.trim()) return;
 
@@ -61,12 +64,15 @@ export default function ChatScreen({route, navigation}) {
     setMessages(newMessages); // 사용자 메시지 먼저 표시
     setInput('');
 
+    console.log('✅ 서버 주소:', PROXY_SERVER);
+
     try {
       //proxy 서버에 보낼 때 role.content 형태
       const response = await fetch(`${PROXY_SERVER}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          sessionId,
           messages: newMessages.map((msg) => ({
             role: msg.sender === 'user' ? 'user' : 'assistant',
             content: msg.text,
@@ -75,6 +81,8 @@ export default function ChatScreen({route, navigation}) {
       });
 
       const { content, riskScore } = await response.json();
+
+      console.log('GPT 응답: ',content);
 
       // riskScores 상태에 추가
       setRiskScores((prev) => {
@@ -130,6 +138,7 @@ export default function ChatScreen({route, navigation}) {
     navigation.navigate('PHQ9',{
       personaImage,
       personaLabel,
+      sessionId,
     });                 // ③
   };
   const handleCancel = () => {

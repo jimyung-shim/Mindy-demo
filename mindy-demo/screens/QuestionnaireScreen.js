@@ -56,7 +56,11 @@ export default function QuestionnaireScreen({ navigation, route }) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessionId }),
         });
-        const data = await res.json();
+
+        const text =await res.text();
+        console.log('서버 응답:',text);
+
+        const data = JSON.parse(text);
 
         if (data.answers && Array.isArray(data.answers)) {
           setScores(data.answers);
