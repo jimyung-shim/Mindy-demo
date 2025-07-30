@@ -1,12 +1,10 @@
-FROM node:18-slim
+FROM node:22-slim
 
 WORKDIR /usr/src/app
 
 COPY package.json package-lock.json ./
 
-ENV NODE_OPTIONS=--max-old-space-size=512
-
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install
 
 COPY . .
 
