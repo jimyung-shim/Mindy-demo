@@ -160,7 +160,7 @@ export default function ChatScreen({route, navigation}) {
       avatar={
         item.sender === 'bot'
           ? (personaImage || require('../assets/mindy-avatar.png'))
-          : require('../assets/user-avatar.png')
+          : require('../assets/useravatar.png')
       }
     />
   );
