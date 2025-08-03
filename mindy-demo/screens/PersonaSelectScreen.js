@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity,ScrollView } from 'react-native';
 import PersonaCard from '../components/PersonaCard';
+import { Ionicons } from '@expo/vector-icons';
 
 const personaList = [
   { id: 'economy', label: '경제', image: require('../assets/personas/economy.png') },
@@ -32,6 +33,15 @@ export default function PersonaSelectScreen({ navigation }) {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
+      <TouchableOpacity onPress={() => navigation.navigate('ChatLogAdmin')}>
+        <Ionicons 
+          name="settings-outline" 
+          size={24} 
+          color="white"
+          width='350'
+          style={{ marginRight: 8 }} 
+        />
+      </TouchableOpacity>
       <Text style={styles.title}>나에게 가장 큰 스트레스를 주는 분야를 선택하세요.</Text>
 
       <View style={styles.grid}>
