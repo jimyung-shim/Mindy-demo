@@ -38,6 +38,7 @@ export default function ChatScreen({route, navigation}) {
 
 
   const onSend = async () => {
+    console.log("💡 PROXY_SERVER:", PROXY_SERVER);
     if (!input.trim()) return;
 
     const userMessage = {
@@ -160,7 +161,7 @@ export default function ChatScreen({route, navigation}) {
       avatar={
         item.sender === 'bot'
           ? (personaImage || require('../assets/mindy-avatar.png'))
-          : require('../assets/user-avatar.png')
+          : require('../assets/user_avatar.png')
       }
     />
   );
